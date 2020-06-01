@@ -16,7 +16,7 @@ You probably don't. SolidFire and NetApp HCI have a great UI and API and this ma
 
 ## Use cases
 
-- "Resolve" various IDs to Names and display them in a human-friendly fashion (Names, or both Names and IDs)
+- Resolve various IDs to Names and display them in a human-friendly fashion (Names, or both Names and IDs)
 - Track (in a non-compliant manner) objects of interest before and after they're gone
 - If additional Objects were tracked, that could be useful in certain storage automation, including Kubernetes
 
@@ -24,9 +24,9 @@ You probably don't. SolidFire and NetApp HCI have a great UI and API and this ma
 
 - Pull: periodically query the system and populate a database (KISS)
 - Push: listen to cluster event log; use events to add and delete data (more resource intensive, but doesn't require the use of Cluster Admin account)
-- Both: combination of both (impressive but complex)
+- Both: a combination of both (impressive but complex)
 
-Due to its small size, the database is unlikely to require deletion. Quite possibly `INSERT` and `SELECT` are the only two SQL operations required for casual use.
+Due to its small size, database records are unlikely to require deletion. Quite possibly `INSERT` and `SELECT` are the only SQL operations required for casual use.
 
 ### Pull approach: Database and Queries
 
@@ -75,11 +75,7 @@ INSERT INTO volumes(clusterUniqueId,accountid,name,virtualVolumeID,volumeId,volu
 - Queries
 
 ```sql
-# GET username for storage account ID 1 on cluster with Unique ID 'abc1' (named PROD)
-SELECT username FROM accounts WHERE accountId=1 AND clusterUniqueId='abc1';
-vcenter
-
-# GET username for storage account ID "1" on cluster with Unique ID "ozv4" (named DR)
+# GET username for storage account ID "1" on cluster with Unique ID 'ozv4' (named DR)
 SELECT accounts.username FROM accounts LEFT JOIN clusters ON accounts.clusterUniqueId=clusters.uniqueid WHERE clusters.uniqueid='ozv4' AND accounts.accountId='1';
 vcenter
 
