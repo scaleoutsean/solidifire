@@ -25,10 +25,24 @@ For enterprise auditing and legal compliance one should use established methods 
 ## Approaches
 
 - Pull: periodically query the system and populate a database (KISS principle; may miss to capture short-lived objects (volumes, for example), but simple)
-- Push: listen to cluster event log; use events to add and delete data (more resource intensive, but doesn't require the use of Cluster Admin account)
+- Push: listen to cluster event log; use events to add and delete data (more resource intensive, but doesn't require the use of a Cluster Admin account)
 - Both: a combination of both (impressive but complex)
 
 Due to its small size, database records are unlikely to require deletion. Quite possibly `INSERT` and `SELECT` are the only SQL operations required for casual use. Use `UPSERT` to update volume ownership changes.
+
+### Push approach: syslog redirection
+
+I captured two lines that contain typical records we'd want to capture and reference (`CreateVolume` and `DeleteVolume`):
+
+```
+Jun  3 16:41:35 192.168.1.29 master-1[20395]: [APP-5] [API] 24016 DBCallback httpserver/RestAPIServer.cpp:292:LogAndDispatch|RestAPI::CreateVolume CALL: requestID=36 loggedParams={"accountID":1,"enable512e":true,"name":"sean","qosPolicyID":2,"requestAPIVersion":"12.0","totalSize":15000000000} user=[admin] authMethod=[Cluster] ip=[192.168.1.12]
+...
+Jun  3 16:41:40 192.168.1.29 master-1[20395]: [APP-5] [API] 24014 DBCallback httpserver/RestAPIServer.cpp:304:LogAndDispatch|RestAPI::DeleteVolume SUCCESS result={"volume":{"access":"readWrite","accountID":1,"attributes":{},"blockSize":4096,"createTime":"2020-06-03T16:41:35Z","currentProtectionScheme":"singleHelix","deleteTime":"2020-06-03T16:41:40Z","enable512e":true,"enableSnapMirrorReplication":false,"iqn":"iqn.2010-01.com.solidfire:ozv4.sean.7","lastAccessTime":null,"lastAccessTimeIO":null,"name":"sean","previousProtectionScheme":null,"purgeTime":"2020-06-04T00:41:40Z","qos":{"burstIOPS":800,"burstTime":60,"curve":{"1048576":15000,"131072":1950,"16384":270,"262144":3900,"32768":500,"4096":100,"524288":7600,"65536":1000,"8192":160},"maxIOPS":400,"minIOPS":200},"qosPolicyID":2,"scsiEUIDeviceID":"6f7a763400000007f47acc0100000000","scsiNAADeviceID":"6f47acc1000000006f7a763400000007","sliceCount":1,"status":"deleted","totalSize":15000928256,"virtualVolumeID":null,"volumeAccessGroups":[],"volumeConsistencyGroupUUID":"95380b91-626d-492f-aa77-93fa8a030063","volumeID":7,"volumePairs":[],"volumeUUID":"c8f2c87e-db79-43b8-b658-a57502c96400"}}
+
+```
+
+Compared to the Pull approach, syslog generates huge amounts of data (as expected), but it has the advantage of having many ready-made database back-ends *as well as* APIs to query them (say, ELK and Grafana). It is also able to provide Name-to-ID aliasing and many more features directly from Grafana as well as better reliability as the likelihood of missing any volume or account actions is very small.
+
 
 ### Pull approach: Database and Queries
 
@@ -150,13 +164,17 @@ test
 
 ```
 
-### Implementation
+### Conclusion
 
-- TODO
-- Possible approach
+- Possible approach to Pull:
   - Container
   - SolidFire Python CLI to periodically fetch and insert or update Cluster, Account and Volume information
   - JSON-RPC API to map various IDs to Names
+- Possible approach to Push:
+  - SolidFire syslog forwarding to syslog-ng
+  - Preprocessing and forwarding to Elastic, Splunk, etc.
+
+Although Pull is much simpler, log redirection is much easier and has many other advantages in this context, so I'll explore log capture and analysis rather than write an app that wouldn't add much value. 
 
 ## Frequently Asked Questions
 
