@@ -2,7 +2,10 @@
 
 An approach for ID-to-Name mapping between varios Object IDs and Names in NetApp SolidFire clusters.
 
-**NOTE**: this idea has (finally) is redundant and unnecessary because it's been [solved](https://scaleoutsean.github.io/2021/10/18/solidfire-syslog-filebeat-logstash-elk-stack.html) with structured logging to ELK which cancels the need to maintain a custom database back-end for this purpose. 
+## NOTE
+
+- This idea has (finally) become redundant and unnecessary because it's been [solved](https://scaleoutsean.github.io/2021/10/18/solidfire-syslog-filebeat-logstash-elk-stack.html) with structured logging to Elastic (other backends are possible) which removes the need to maintain a custom database back-end for this purpose. 
+- Because of that this repository is being **archived** and will see no further updates
 
 ## Why?
 
