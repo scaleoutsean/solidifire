@@ -2,6 +2,8 @@
 
 An approach for ID-to-Name mapping between varios Object IDs and Names in NetApp SolidFire clusters.
 
+**NOTE**: this idea has (finally) is redundant and unnecessary because it's been [solved](https://scaleoutsean.github.io/2021/10/18/solidfire-syslog-filebeat-logstash-elk-stack.html) with structured logging to ELK which cancels the need to maintain a custom database back-end for this purpose. 
+
 ## Why?
 
 NetApp SolidFire clusters use unique integer ID's for Clusters, Volumes, Accounts and so on. 
